@@ -1,0 +1,21 @@
+{
+  "tests": [
+    {
+      "name": "Create listing without auth",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "game_title": "Test Game",
+        "account_level": "Level 50",
+        "price": 100
+      },
+      "expectedStatus": 401
+    },
+    {
+      "name": "OPTIONS request for CORS",
+      "method": "OPTIONS",
+      "path": "/",
+      "expectedStatus": 200
+    }
+  ]
+}

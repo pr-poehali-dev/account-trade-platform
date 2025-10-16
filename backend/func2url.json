@@ -1,4 +1,5 @@
 {
+  "create-listing": "https://functions.poehali.dev/29ce1fad-0315-49f7-bec2-513fff11eecc",
   "auth": "https://functions.poehali.dev/c85e684f-0f66-4ff1-b135-5727067ebddd",
   "ban-user": "https://functions.poehali.dev/0f30c8e6-e123-4576-939b-a59ea51d9aa2",
   "accounts": "https://functions.poehali.dev/f6b9f400-dd1f-49ff-952b-fce55fc84772"

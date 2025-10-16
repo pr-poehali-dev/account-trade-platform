@@ -60,6 +60,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             ga.price,
             ga.description,
             ga.is_featured,
+            ga.image_url,
             u.username as seller
         FROM game_accounts ga
         JOIN users u ON ga.seller_id = u.id
@@ -77,7 +78,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'price': float(row[3]),
             'description': row[4],
             'isFeatured': row[5],
-            'seller': row[6]
+            'image': row[6],
+            'seller': row[7]
         })
     
     cur.close()

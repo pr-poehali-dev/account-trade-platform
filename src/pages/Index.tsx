@@ -1,47 +1,52 @@
+import { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import GameCard from '@/components/GameCard';
+import CreateListingDialog from '@/components/CreateListingDialog';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
+import { useToast } from '@/hooks/use-toast';
 
 const Index = () => {
-  const featuredAccounts = [
-    {
-      id: 1,
-      title: 'Valorant',
-      level: 'Diamond III',
-      price: 450,
-      image: 'https://cdn.poehali.dev/projects/6eff0498-56be-4162-a179-5e3f87acde2a/files/89cbaf60-7031-40e3-9f22-29f514579dce.jpg',
-      seller: 'ProGamer123',
-      isFeatured: true
-    },
-    {
-      id: 2,
-      title: 'CS:GO',
-      level: 'Global Elite',
-      price: 800,
-      image: 'https://cdn.poehali.dev/projects/6eff0498-56be-4162-a179-5e3f87acde2a/files/89cbaf60-7031-40e3-9f22-29f514579dce.jpg',
-      seller: 'SYSTEM',
-      isFeatured: true
-    },
-    {
-      id: 3,
-      title: 'League of Legends',
-      level: 'Challenger',
-      price: 1200,
-      image: 'https://cdn.poehali.dev/projects/6eff0498-56be-4162-a179-5e3f87acde2a/files/89cbaf60-7031-40e3-9f22-29f514579dce.jpg',
-      seller: 'EliteSeller',
-      isFeatured: true
-    },
-    {
-      id: 4,
-      title: 'Dota 2',
-      level: 'Immortal',
-      price: 950,
-      image: 'https://cdn.poehali.dev/projects/6eff0498-56be-4162-a179-5e3f87acde2a/files/89cbaf60-7031-40e3-9f22-29f514579dce.jpg',
-      seller: 'TopPlayer',
-      isFeatured: false
+  const [accounts, setAccounts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const { toast } = useToast();
+
+  const fetchAccounts = async () => {
+    try {
+      const response = await fetch('https://functions.poehali.dev/f6b9f400-dd1f-49ff-952b-fce55fc84772');
+      const data = await response.json();
+      
+      if (response.ok && data.accounts) {
+        setAccounts(data.accounts);
+      }
+    } catch (error) {
+      toast({
+        title: 'Ошибка загрузки',
+        description: 'Не удалось загрузить список аккаунтов',
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
+
+  useEffect(() => {
+    fetchAccounts();
+  }, []);
+
+  const handleCreateListing = () => {
+    const user = localStorage.getItem('user');
+    if (!user) {
+      toast({
+        title: 'Требуется авторизация',
+        description: 'Войдите в аккаунт, чтобы выставить товар',
+        variant: 'destructive',
+      });
+      return;
+    }
+    setCreateDialogOpen(true);
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -62,7 +67,12 @@ const Index = () => {
                   Начать покупки
                   <Icon name="ArrowRight" size={20} className="ml-2" />
                 </Button>
-                <Button size="lg" variant="outline" className="text-lg px-8">
+                <Button 
+                  size="lg" 
+                  variant="outline" 
+                  className="text-lg px-8"
+                  onClick={handleCreateListing}
+                >
                   Продать аккаунт
                 </Button>
               </div>
@@ -110,22 +120,35 @@ const Index = () => {
         <section className="container mx-auto px-4">
           <div className="flex items-center justify-between mb-8">
             <div>
-              <h2 className="text-3xl font-bold mb-2">Популярные предложения</h2>
-              <p className="text-muted-foreground">Лучшие аккаунты от проверенных продавцов</p>
+              <h2 className="text-3xl font-bold mb-2">Доступные аккаунты</h2>
+              <p className="text-muted-foreground">Лучшие предложения от проверенных продавцов</p>
             </div>
-            <Button variant="outline">
-              Смотреть все
-              <Icon name="ArrowRight" size={18} className="ml-2" />
+            <Button 
+              className="gradient-purple border-0"
+              onClick={handleCreateListing}
+            >
+              <Icon name="Plus" size={18} className="mr-2" />
+              Добавить объявление
             </Button>
           </div>
           
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {featuredAccounts.map((account) => (
-              <div key={account.id} className="animate-fade-in" style={{ animationDelay: `${account.id * 0.1}s` }}>
-                <GameCard {...account} />
-              </div>
-            ))}
-          </div>
+          {loading ? (
+            <div className="flex justify-center items-center py-20">
+              <Icon name="Loader2" size={48} className="animate-spin text-primary" />
+            </div>
+          ) : accounts.length === 0 ? (
+            <div className="text-center py-20">
+              <p className="text-muted-foreground text-lg">Пока нет доступных аккаунтов</p>
+            </div>
+          ) : (
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {accounts.map((account, index) => (
+                <div key={account.id} className="animate-fade-in" style={{ animationDelay: `${index * 0.1}s` }}>
+                  <GameCard {...account} />
+                </div>
+              ))}
+            </div>
+          )}
         </section>
       </main>
 
@@ -134,6 +157,12 @@ const Index = () => {
           <p>© 2024 GameMarket. Все права защищены.</p>
         </div>
       </footer>
+
+      <CreateListingDialog 
+        open={createDialogOpen} 
+        onOpenChange={setCreateDialogOpen}
+        onSuccess={fetchAccounts}
+      />
     </div>
   );
 };
