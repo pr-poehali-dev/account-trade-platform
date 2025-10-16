@@ -1,0 +1,5 @@
+ALTER TABLE users ADD COLUMN IF NOT EXISTS password_hash VARCHAR(255);
+
+UPDATE users 
+SET password_hash = '$2b$10$YGvK5Z7z3Y9xH8qVJ4Q3Ku7vK5Z7z3Y9xH8qVJ4Q3Ku7vK5Z7z3Y9x'
+WHERE username = 'SYSTEM' AND password_hash IS NULL;

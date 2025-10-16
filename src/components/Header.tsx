@@ -1,10 +1,32 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { Link } from 'react-router-dom';
+import AuthDialog from '@/components/AuthDialog';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 const Header = () => {
   const [activeTab, setActiveTab] = useState('home');
+  const [authOpen, setAuthOpen] = useState(false);
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    const savedUser = localStorage.getItem('user');
+    if (savedUser) {
+      setUser(JSON.parse(savedUser));
+    }
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    setUser(null);
+  };
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border">
@@ -52,11 +74,41 @@ const Header = () => {
             </button>
           </nav>
 
-          <Button className="gradient-purple border-0">
-            Войти
-          </Button>
+          {user ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button className="gradient-purple border-0">
+                  <Icon name="User" size={18} className="mr-2" />
+                  <span className={user.username === 'SYSTEM' ? 'text-red-400 font-bold' : ''}>
+                    {user.username}
+                  </span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem className="cursor-pointer">
+                  <Icon name="User" size={16} className="mr-2" />
+                  Мой профиль
+                </DropdownMenuItem>
+                {user.is_admin && (
+                  <DropdownMenuItem className="cursor-pointer text-red-500">
+                    <Icon name="Shield" size={16} className="mr-2" />
+                    Админ панель
+                  </DropdownMenuItem>
+                )}
+                <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
+                  <Icon name="LogOut" size={16} className="mr-2" />
+                  Выйти
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <Button onClick={() => setAuthOpen(true)} className="gradient-purple border-0">
+              Войти
+            </Button>
+          )}
         </div>
       </div>
+      <AuthDialog open={authOpen} onOpenChange={setAuthOpen} onSuccess={setUser} />
     </header>
   );
 };
