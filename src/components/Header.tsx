@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import AuthDialog from '@/components/AuthDialog';
 import {
   DropdownMenu,
@@ -14,6 +14,7 @@ const Header = () => {
   const [activeTab, setActiveTab] = useState('home');
   const [authOpen, setAuthOpen] = useState(false);
   const [user, setUser] = useState<any>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const savedUser = localStorage.getItem('user');
@@ -26,6 +27,7 @@ const Header = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     setUser(null);
+    navigate('/');
   };
 
   return (
@@ -90,7 +92,10 @@ const Header = () => {
                   Мой профиль
                 </DropdownMenuItem>
                 {user.is_admin && (
-                  <DropdownMenuItem className="cursor-pointer text-red-500">
+                  <DropdownMenuItem 
+                    className="cursor-pointer text-red-500"
+                    onClick={() => navigate('/admin')}
+                  >
                     <Icon name="Shield" size={16} className="mr-2" />
                     Админ панель
                   </DropdownMenuItem>
