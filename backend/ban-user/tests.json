@@ -1,0 +1,23 @@
+{
+  "tests": [
+    {
+      "name": "Ban user without admin token",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "user_id": 1
+      },
+      "expectedStatus": 403,
+      "expectedBody": {
+        "error": "string"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "OPTIONS request for CORS",
+      "method": "OPTIONS",
+      "path": "/",
+      "expectedStatus": 200
+    }
+  ]
+}
